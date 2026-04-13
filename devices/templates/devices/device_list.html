@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>TechRanker 2026 | Світ Смартфонів</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/icons/font/bootstrap-icons.css">
+    <style>
+        body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; }
+        
+        .hero {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 80px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Кнопки брендів */
+        .filter-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: #38bdf8;
+            color: #0f172a;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Картки */
+        .phone-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            backdrop-filter: blur(12px);
+            transition: all 0.4s ease;
+            position: relative;
+        }
+        .phone-card:hover {
+            transform: translateY(-12px);
+            border-color: #38bdf8;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .img-box {
+            background: white;
+            border-radius: 18px;
+            padding: 20px;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px;
+        }
+        .img-box img { max-height: 100%; transition: 0.5s; }
+        .phone-card:hover img { transform: scale(1.1); }
+
+        .score-pill {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: #38bdf8;
+            color: #0f172a;
+            padding: 5px 15px;
+            border-radius: 12px;
+            font-weight: 800;
+        }
+
+        .progress { background: rgba(255,255,255,0.1); height: 6px; border-radius: 10px; }
+        .progress-bar { border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="hero text-center">
+    <h1 class="display-3 fw-bold mb-3">TechRanker <span style="color: #38bdf8;">2026</span></h1>
+    <p class="text-secondary fs-5">Рейтинг смартфонів за моїм власним алгоритмом</p>
+</div>
+
+<div class="container mt-n5">
+    <div class="d-flex justify-content-center flex-wrap gap-2 mb-5">
+        <a href="?" class="btn filter-btn rounded-pill px-4 {% if not current_brand %}active{% endif %}">Всі пристрої</a>
+        {% for brand in brands %}
+        <a href="?brand={{ brand }}" class="btn filter-btn rounded-pill px-4 {% if current_brand == brand %}active{% endif %}">
+            {{ brand }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="row g-4">
+        {% for phone in phones %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="phone-card h-100 p-3">
+                <div class="score-pill">{{ phone.total_score }}</div>
+                
+                <div class="img-box">
+                    <img src="{{ phone.image_url }}" alt="{{ phone.name }}" referrerpolicy="no-referrer">
+                </div>
+
+                <div class="card-content px-2">
+                    <h4 class="fw-bold mb-1">{{ phone.name }}</h4>
+                    <p class="text-secondary small mb-4">⚙️ {{ phone.cpu_name }} | 🧠 {{ phone.ram_gb }}GB RAM</p>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-1"><span>Продуктивність</span><span>{{ phone.perf_score }}%</span></div>
+<div class="progress"><div class="progress-bar bg-info" style="width: {{ phone.perf_score }}%"></div></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between small mb-1"><span>Автономність</span><span>{{ phone.battery_score }}%</span></div>
+                        <div class="progress"><div class="progress-bar bg-success" style="width: {{ phone.battery_score }}%"></div></div>
+                    </div>
+
+                    <a href="{% url 'device_detail' phone.pk %}" class="btn btn-outline-light w-100 rounded-pill py-2 fw-bold">Докладніше</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+</body>
+</html>
