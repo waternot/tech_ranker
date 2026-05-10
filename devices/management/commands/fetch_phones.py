@@ -7,10 +7,14 @@ from django.core.management.base import BaseCommand
 from devices.models import Smartphone
 
 # База AnTuTu для розрахунку логіки
-ANTUTU_DB = {
+ANTUTU_DB = {   
+                    # google smartphones
+                    'Google Tensor G5': 1600000, 'Google Tensor G4':1400000, 'Google Tensor G3':1180000,
+                    'Google Tensor G2':800000, 'Google Tensor G1': 700000,
+
                     # --- APPLE SMARTPHONES (A-Series) ---
                     'a19 pro': 2400000,'a18 pro': 1900000,'a17 pro': 1550000, 'a16 bionic': 1430000,
-                    'a15 bionic': 1290000,'a18':1500000,
+                   'a15 bionic': 1290000,'a18':1500000,
                     'a14 bionic': 1100000, 'a13 bionic': 850000, 'a12 bionic': 680000,
                     'a11 bionic': 520000, 'a10 fusion': 380000, 'a9': 250000, 'a8': 150000,
 
@@ -24,15 +28,21 @@ ANTUTU_DB = {
 
                     # --- SNAPDRAGON (8-Series & Gaming) ---
                     'snapdragon 8 gen 3': 2080000, 'snapdragon 8 gen 2': 1530000,
+                    'Qualcomm SM8850-AC Snapdragon 8 Elite Gen 5':2889561,'Qualcomm SM8735 Snapdragon 8s Gen 4':2366913,
+                    'Qualcomm SM8850-AC Snapdragon 8 Elite Gen 5':4000000,'Qualcomm SM8845 Snapdragon 8 Gen 5':3000000,
+                    'Qualcomm SM8750-AB Snapdragon 8 Elite':3240000,'Qualcomm SM8650-AB Snapdragon 8 Gen 3':2340000,
+                    'Qualcomm SM8635 Snapdragon 8s Gen 3':1780000,'Qualcomm SM8550-AB Snapdragon 8 Gen 2':1750000,
                     'snapdragon 8+ gen 1': 1280000, 'snapdragon 8 gen 1': 1150000,
                     'snapdragon 888': 820000, 'snapdragon 870': 710000, 'snapdragon 865': 650000,
                     'snapdragon 855': 550000, 'snapdragon 845': 420000,
 
                     # --- SNAPDRAGON (7, 6 & 4 Series) ---
-                    'snapdragon 7+ gen 3': 1450000, 'snapdragon 7+ gen 2': 1120000,
-                    'snapdragon 7 gen 3': 850000, 'snapdragon 7 gen 1': 660000,
+                    'Qualcomm SM7635-AC Snapdragon 7s Gen 4':1875000,'Qualcomm SM7675 Snapdragon 7+ Gen 3':1640000,
+                    'Qualcomm SM7550-AB Snapdragon 7 Gen 3':860000,'snapdragon 7+ gen 3': 1450000, 'snapdragon 7+ gen 2': 1120000,
+                    'snapdragon 7 gen 3': 850000, 'snapdragon 7 gen 1': 660000,'Qualcomm Snapdragon 782G':806000,
                     'snapdragon 778g': 590000, 'snapdragon 765g': 430000,
                     'snapdragon 6 gen 1': 550000, 'snapdragon 695': 440000,
+                    'Qualcomm SM6375 Snapdragon 695 5G':415000,
                     'snapdragon 685': 340000, 'snapdragon 680': 310000,
                     'snapdragon 4 gen 2': 450000, 'snapdragon 4 gen 1': 380000,
 
@@ -43,14 +53,15 @@ ANTUTU_DB = {
                     'exynos 850': 150000,
 
                     # --- DIMENSITY (MediaTek Flagship/High) ---
-                    'dimensity 9300': 2050000, 'dimensity 9200': 1500000, 'dimensity 9000': 1100000,
-                    'dimensity 8300': 1400000, 'dimensity 8200': 900000, 'dimensity 8100': 830000,
-                    'dimensity 8020': 750000, 'dimensity 7200': 730000,
+                    'dimensity 9500': 2450000,'Mediatek Dimensity 9400+':2700000,'Mediatek Dimensity 9400e':2124000,
+                    'dimensity 9300': 2050000, 'dimensity 9200': 1500000, 'dimensity 9000': 1100000,'Mediatek Dimensity 8350 Apex':1720000,
+                    'Mediatek Dimensity 8350':1350000,'dimensity 8300': 1400000, 'dimensity 8200': 900000,
+                    'dimensity 8100': 830000,'Mediatek Dimensity 7300 Ultra':1035000,'dimensity 8020': 750000, 'dimensity 7200': 730000,
 
                     # --- DIMENSITY & HELIO (MediaTek Mid/Budget) ---
                     'dimensity 7050': 560000, 'dimensity 1080': 540000, 'dimensity 930': 420000,
-                    'dimensity 700': 390000, 'dimensity 6080': 430000,
-                    'helio g99': 415000, 'helio g96': 360000, 'helio g95': 350000,
+                    'dimensity 700': 390000, 'dimensity 6080': 430000,'Mediatek Dimensity 6020':391000,
+                    'Mediatek Helio G100':450000,'Mediatek Helio G99': 415000, 'helio g96': 360000, 'helio g95': 350000,
                     'helio g88': 270000, 'helio g85': 260000, 'helio p35': 120000,
 
                     # --- GOOGLE TENSOR ---
@@ -72,13 +83,20 @@ class Command(BaseCommand):
         
         session = requests.Session()
         user_agents = [
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Mobile/15E148 Safari/604.1"
         ]
 
+       
         urls = [
-            {'brand': 'Samsung', 'url': 'https://www.gsmarena.com/samsung_galaxy_s24_ultra-12771.php'},
-            {'brand': 'Samsung', 'url': 'https://www.gsmarena.com/samsung-phones-9.php'},
-            # Можеш додавати інші посилання сюди
+            #{'brand': 'Samsung', 'url': 'https://www.gsmarena.com/samsung_galaxy_s24_ultra-12771.php'},
+            #{'brand': 'Samsung', 'url': 'https://www.gsmarena.com/samsung-phones-9.php'},
+            #{'brand': 'Google', 'url': 'https://www.gsmarena.com/google-phones-107.php}'}
+            {'brand': 'OnePlus', 'url': 'https://www.gsmarena.com/oneplus-phones-95.php'}
+            #{'brand': 'Apple', 'url': 'https://www.gsmarena.com/apple_iphone_17_pro_max-13964.php'}
+            #{'brand': 'Apple', 'url': 'https://www.gsmarena.com/apple_iphone_17_pro-14049.php'}
         ]
 
         for item in urls:
@@ -129,12 +147,27 @@ class Command(BaseCommand):
 
                 # 5. ГОЛОВНИЙ ЦИКЛ ОБРОБКИ
                 for phone in phones_to_parse:
-                    wait_time = random.uniform(7, 10) # Випадкова пауза від 2 до 5 секунд
+                    wait_time = random.uniform(7, 10) # Випадкова пауза від 7 до 10 секунд
                     self.stdout.write(f"⏳ Чекaю {wait_time:.1f} сек, щоб не забанили...")
                     time.sleep(wait_time)
                     
                     self.stdout.write(f"🔎 Обробка: {phone['name']}...")
+                    clean_name = phone['name'].strip()
+
+                    # 2. Перевіряємо, чи є такий телефон уже в базі
+                    if Smartphone.objects.filter(name=clean_name).exists():
+                        self.stdout.write(self.style.SUCCESS(f"✅ {clean_name} вже є в базі, пропускаю..."))
+                        continue 
+
+                    # 3. Якщо немає, йдемо далі: пауза та обробка
+                    self.stdout.write(f"🔎 Обробка нового пристрою: {clean_name}...")
                     
+                    wait_time = random.uniform(12, 20)
+                    self.stdout.write(f"⏳ Чекаю {wait_time:.1f} сек...")
+                    time.sleep(wait_time)
+                    
+
+            
                     # Твій існуючий запит до сторінки телефону
                     p_res = session.get(phone['url'], headers=headers, timeout=15)
                     
@@ -276,6 +309,10 @@ class Command(BaseCommand):
                             image_url = 'https:' + image_url
                         else:
                             image_url = 'https://www.gsmarena.com/' + image_url.lstrip('/')
+
+
+                    self.stdout.write(f" Фінальне посилання на фото: {image_url}")
+                    self.stdout.write(f"Готовність до збереження: {clean_name}")
 
                     charge_score = 0
                     # Шукаємо в тій же таблиці, де батарея, або через загальний пошук тексту

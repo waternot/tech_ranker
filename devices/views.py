@@ -1,5 +1,11 @@
+from rest_framework.viewsets import ModelViewSet
 from django.shortcuts import render, get_object_or_404
 from .models import Smartphone
+from .serializers import SmartphoneSerializer
+
+class SmartphoneViewSet(ModelViewSet):
+    queryset = Smartphone.objects.all()
+    serializer_class = SmartphoneSerializer
 
 def device_list(request):
     brand_filter = request.GET.get('brand')
