@@ -28,21 +28,21 @@ ANTUTU_DB = {
 
                     # --- SNAPDRAGON (8-Series & Gaming) ---
                     'snapdragon 8 gen 3': 2080000, 'snapdragon 8 gen 2': 1530000,
-                    'Qualcomm SM8850-AC Snapdragon 8 Elite Gen 5':2889561,'Qualcomm SM8735 Snapdragon 8s Gen 4':2366913,
-                    'Qualcomm SM8850-AC Snapdragon 8 Elite Gen 5':4000000,'Qualcomm SM8845 Snapdragon 8 Gen 5':3000000,
-                    'Qualcomm SM8750-AB Snapdragon 8 Elite':3240000,'Qualcomm SM8650-AB Snapdragon 8 Gen 3':2340000,
-                    'Qualcomm SM8635 Snapdragon 8s Gen 3':1780000,'Qualcomm SM8550-AB Snapdragon 8 Gen 2':1750000,
+                    'Qualcomm SM8850-AC Snapdragon 8 Elite Gen 5': 2889561,'Qualcomm SM8735 Snapdragon 8s Gen 4': 2366913,
+                    'Qualcomm SM8845 Snapdragon 8 Gen 5': 3000000,
+                    'Qualcomm SM8750-AB Snapdragon 8 Elite': 3240000,'Qualcomm SM8650-AB Snapdragon 8 Gen 3': 2340000,
+                    'Qualcomm SM8635 Snapdragon 8s Gen 3': 1780000,'Qualcomm SM8550-AB Snapdragon 8 Gen 2': 1750000,
                     'snapdragon 8+ gen 1': 1280000, 'snapdragon 8 gen 1': 1150000,
                     'snapdragon 888': 820000, 'snapdragon 870': 710000, 'snapdragon 865': 650000,
                     'snapdragon 855': 550000, 'snapdragon 845': 420000,
 
                     # --- SNAPDRAGON (7, 6 & 4 Series) ---
-                    'Qualcomm SM7635-AC Snapdragon 7s Gen 4':1875000,'Qualcomm SM7675 Snapdragon 7+ Gen 3':1640000,
-                    'Qualcomm SM7550-AB Snapdragon 7 Gen 3':860000,'snapdragon 7+ gen 3': 1450000, 'snapdragon 7+ gen 2': 1120000,
-                    'snapdragon 7 gen 3': 850000, 'snapdragon 7 gen 1': 660000,'Qualcomm Snapdragon 782G':806000,
+                    'Qualcomm SM7635-AC Snapdragon 7s Gen 4': 1875000,'Qualcomm SM7675 Snapdragon 7+ Gen 3': 1640000,
+                    'Qualcomm SM7550-AB Snapdragon 7 Gen 3': 860000,'snapdragon 7+ gen 3': 1450000, 'snapdragon 7+ gen 2': 1120000,
+                    'snapdragon 7 gen 3': 850000, 'snapdragon 7 gen 1': 660000,'Qualcomm Snapdragon 782G': 806000,
                     'snapdragon 778g': 590000, 'snapdragon 765g': 430000,
                     'snapdragon 6 gen 1': 550000, 'snapdragon 695': 440000,
-                    'Qualcomm SM6375 Snapdragon 695 5G':415000,
+                    'Qualcomm SM6375 Snapdragon 695 5G': 415000,
                     'snapdragon 685': 340000, 'snapdragon 680': 310000,
                     'snapdragon 4 gen 2': 450000, 'snapdragon 4 gen 1': 380000,
 
@@ -56,8 +56,8 @@ ANTUTU_DB = {
                     'dimensity 9500': 2450000,'Mediatek Dimensity 9400+':2700000,'Mediatek Dimensity 9400e':2124000,
                     'dimensity 9300': 2050000, 'dimensity 9200': 1500000, 'dimensity 9000': 1100000,'Mediatek Dimensity 8350 Apex':1720000,
                     'Mediatek Dimensity 8350':1350000,'dimensity 8300': 1400000, 'dimensity 8200': 900000,
-                    'dimensity 8100': 830000,'Mediatek Dimensity 7300 Ultra':1035000,'dimensity 8020': 750000, 'dimensity 7200': 730000,
-
+                    'dimensity 8100': 830000,'Mediatek Dimensity 7300 Ultra': 1035000,'dimensity 8020': 750000, 'dimensity 7200': 730000,
+                    'Mediatek Dimensity 7400 Apex': 1000000,
                     # --- DIMENSITY & HELIO (MediaTek Mid/Budget) ---
                     'dimensity 7050': 560000, 'dimensity 1080': 540000, 'dimensity 930': 420000,
                     'dimensity 700': 390000, 'dimensity 6080': 430000,'Mediatek Dimensity 6020':391000,
@@ -97,6 +97,7 @@ class Command(BaseCommand):
             {'brand': 'OnePlus', 'url': 'https://www.gsmarena.com/oneplus-phones-95.php'}
             #{'brand': 'Apple', 'url': 'https://www.gsmarena.com/apple_iphone_17_pro_max-13964.php'}
             #{'brand': 'Apple', 'url': 'https://www.gsmarena.com/apple_iphone_17_pro-14049.php'}
+            
         ]
 
         for item in urls:
@@ -177,17 +178,30 @@ class Command(BaseCommand):
                         continue
                         
                     p_soup = BeautifulSoup(p_res.text, 'html.parser')
+                    title_tag = p_soup.find('title')
+                    if title_tag and "all oneplus phones" in title_tag.text.lower():
+                        self.stdout.write(self.style.WARNING("Пропускаємо загальну сторінку бренду OnePlus (це не конкретний телефон)"))
+                        return # Або 'continue', якщо це всередині циклу 'for phone in phones:'
 
                     # 1. Назва та Процесор
                     clean_name = phone['name']
                     cpu_name = "Unknown"
-                    chipset_tag = p_soup.find('td', {'data-spec': 'chipset'})
-                    if chipset_tag:
-                        cpu_name = chipset_tag.text.split('(')[0].split(',')[0].strip()
                     
+                    chipset_tag = p_soup.find('td', {'data-spec': 'chipset'})
+                    if chipset_tag and chipset_tag.text.strip():
+                        cpu_name = chipset_tag.text.split('(')[0].split(',')[0].strip()
+                    else:
+                        # ПЛАН Б ДЛЯ ONEPLUS: якщо тегу chipset немає, шукаємо згадку Snapdragon/Dimensity в усій таблиці
+                        for td in p_soup.find_all('td'):
+                            text_low = td.text.lower()
+                            if 'snapdragon' in text_low or 'dimensity' in text_low:
+                                # Забираємо нормальну назву процесора
+                                cpu_name = td.text.split('(')[0].split(',')[0].strip()
+                                break
+
                     if "Exynos/Snapdragon" in cpu_name or cpu_name == "Unknown":
                         cpu_tag = p_soup.find('td', {'data-spec': 'cpu'})
-                        if cpu_tag:
+                        if cpu_tag and "chipset" in cpu_name.lower():
                             cpu_name = cpu_tag.text.split(' ')[0] + " Chipset"
 
                     # 2. Пам'ять
@@ -203,14 +217,14 @@ class Command(BaseCommand):
 
                     battery_mah = 0
 
-                    # 1. Пріоритет: Шукаємо в спеціальному тегу (швидкий доступ)
+                    
                     batt_hl = self.safe_get(p_soup, 'batsize-hl')
                     if batt_hl:
                         batt_match = re.search(r'(\d{3,5})', batt_hl)
                         if batt_match:
                             battery_mah = int(batt_match.group(1))
 
-                    # 2. РЕЗЕРВ: Якщо в HL порожньо, шукаємо в таблиці специфікацій (рядок Battery -> Type)
+                   
                     if battery_mah < 1000:
                         batt_row = p_soup.find('td', {'data-spec': 'batdescription'})
                         if batt_row:
@@ -218,13 +232,10 @@ class Command(BaseCommand):
                             if batt_match:
                                 battery_mah = int(batt_match.group(1))
 
-                    # 3. ГЛИБОКИЙ ПОШУК: Якщо все ще 0, шукаємо слово "mAh" по всьому тексту сторінки
                     if battery_mah < 1000:
-                        page_text = p_soup.get_text()
-                        # Шукаємо цифри перед mAh, наприклад "Li-Po 4500 mAh"
+                        page_text = p_soup.get_text()                       
                         all_batt_matches = re.findall(r'(\d{3,5})\s*mAh', page_text)
                         if all_batt_matches:
-                            # Беремо найбільше число (зазвичай це і є основна батарея)
                             battery_mah = int(max(all_batt_matches, key=int))
 
                     # 4. ФІНАЛЬНИЙ ЛОГІЧНИЙ ПЛАН "Б" (Тільки якщо реально нічого не знайшли)
@@ -266,21 +277,26 @@ class Command(BaseCommand):
 
                     # 5. Antutu
                     antutu_score = 0
-                    cpu_lower = cpu_name.lower()
+                    cpu_lower = cpu_name.lower().strip()
 
-                    # Шукаємо в нашій базі ANTUTU_DB
+                    # Розумний пошук в нашій базі ANTUTU_DB
                     for cpu_key, score in ANTUTU_DB.items():
-                        if cpu_key in cpu_lower:
+                        clean_key = cpu_key.lower().strip()
+                        # Розбиваємо ключ бази на окремі слова (ігноруємо пусті)
+                        keywords = [word for word in cpu_key.split() if word]
+                        if clean_key in cpu_lower or cpu_lower in clean_key:
                             antutu_score = score
                             break
 
-                    # Якщо в базі не знайшли, пробуємо витягнути з самої сторінки (якщо там є блок тестів)
+                    # Якщо точного збігу за всіма словами не знайшли, робимо "запасний" гнучкий пошук
                     if antutu_score == 0:
-                        perf_td = p_soup.find('td', {'data-spec': 'tbench'})
-                        if perf_td and 'AnTuTu' in perf_td.text:
-                            at_match = re.search(r'AnTuTu:\s*(\d+)', perf_td.text)
-                            if at_match:
-                                antutu_score = int(at_match.group(1))
+                        for cpu_key, score in ANTUTU_DB.items():
+                            # Якщо хоча б головна частина чіпа (наприклад '8 gen 3') є в тексті
+                            # Прибираємо бренд qualcomm/mediatek для чистого порівняння
+                            short_key = cpu_key.replace('qualcomm', '').replace('mediatek', '').strip()
+                            if short_key in cpu_lower:
+                                antutu_score = score
+                                break
 
                     # План "В" - якщо всюди порожньо (дуже рідкісні чипи)
                     if antutu_score == 0:
